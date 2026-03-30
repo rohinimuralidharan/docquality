@@ -1,0 +1,330 @@
+version: "1.0"
+phase: 1
+description: >
+  15 heuristic criteria for evaluating technical documentation quality.
+  All checks are pure-regex or HTML-parse based — no LLM, no API cost.
+  Phase 2 criteria (C16–C19) require AI scoring and are not included here.
+
+dimensions:
+
+  voice_and_tone:
+    label: "Voice & Tone"
+    criteria:
+
+      - id: C06
+        name: "Active voice"
+        description: >
+          Passive constructions dilute directness and increase cognitive load.
+          Check for common passive patterns: "is configured by", "was created by",
+          "can be enabled by", "should be set by".
+        method: regex
+        exclude_code_blocks: true
+        patterns:
+          - "\\b(is|are|was|were|be|been|being)\\s+(\\w+ed|\\w+en)\\s+by\\b"
+          - "\\b(is|are|was|were)\\s+(\\w+ed|\\w+en)\\b"
+        score_logic: >
+          PASS if passive_sentence_ratio < 0.15.
+          WARN if 0.15 <= passive_sentence_ratio < 0.30.
+          FAIL if passive_sentence_ratio >= 0.30.
+        confidence: high
+        suggestion: "Rewrite passive constructions so the subject acts: 'Configure the setting' not 'The setting should be configured'."
+
+      - id: C07
+        name: "Second person"
+        description: >
+          Measures direct address to the reader. High "you/your" ratio relative to
+          third-person references ("the user", "the administrator", "the developer")
+          signals reader-focused writing.
+        method: word_frequency
+        exclude_code_blocks: true
+        score_logic: >
+          PASS if you_ratio >= 0.60 (you+your as share of you+your+third_person_refs).
+          WARN if 0.30 <= you_ratio < 0.60.
+          FAIL if you_ratio < 0.30.
+        confidence: high
+        third_person_terms:
+          - "the user"
+          - "the administrator"
+          - "the developer"
+          - "the operator"
+          - "the reader"
+          - "the customer"
+          - "users"
+          - "administrators"
+          - "developers"
+        suggestion: "Replace 'the user should' with 'you should'. Address the reader directly throughout."
+
+      - id: C08
+        name: "Imperative mood"
+        description: >
+          In numbered steps and bulleted instructions, list items should begin with
+          a verb in imperative form (e.g. "Click", "Run", "Configure") rather than
+          a noun or article (e.g. "The next step", "A configuration").
+        method: list_item_analysis
+        exclude_code_blocks: true
+        score_logic: >
+          PASS if imperative_ratio >= 0.70.
+          WARN if 0.40 <= imperative_ratio < 0.70.
+          FAIL if imperative_ratio < 0.40.
+        confidence: high
+        suggestion: "Start numbered steps and list items with an action verb: 'Click Save' not 'The Save button should be clicked'."
+
+  discoverability:
+    label: "Discoverability"
+    criteria:
+
+      - id: C09
+        name: "Internal cross-links"
+        description: >
+          Pages with no same-domain anchor tags are isolated from the documentation
+          graph. A minimum threshold of internal links signals a connected doc set.
+        method: html_parse
+        score_logic: >
+          PASS if internal_link_count >= 3.
+          WARN if internal_link_count == 1 or 2.
+          FAIL if internal_link_count == 0.
+        confidence: high
+        suggestion: "Add at least 3 links to related pages on the same domain to connect this page into the documentation graph."
+
+      - id: C10
+        name: "Related Topics section"
+        description: >
+          A dedicated section for onward navigation helps readers find adjacent
+          content. Detected by scanning heading text for known patterns.
+        method: heading_scan
+        score_logic: >
+          PASS if any heading matches related_patterns.
+          FAIL otherwise.
+        confidence: high
+        related_patterns:
+          - "related"
+          - "see also"
+          - "next steps"
+          - "what's next"
+          - "further reading"
+          - "learn more"
+          - "additional resources"
+        suggestion: "Add a 'Related topics' or 'See also' section at the bottom of the page with links to adjacent content."
+
+      - id: C11
+        name: "Task-oriented link text"
+        description: >
+          Link text should describe the action or destination, not be a bare URL,
+          a generic phrase like 'click here', or unexplained title-case multi-word
+          anchor text that reads like a product name rather than a destination.
+        method: anchor_text_analysis
+        score_logic: >
+          PASS if bad_link_ratio < 0.10.
+          WARN if 0.10 <= bad_link_ratio < 0.25.
+          FAIL if bad_link_ratio >= 0.25.
+        confidence: high
+        bad_patterns:
+          - "^https?://"           # bare URL as link text
+          - "^click here$"
+          - "^here$"
+          - "^this page$"
+          - "^link$"
+          - "^read more$"
+          - "^learn more$"
+          - "^more$"
+        suggestion: "Replace generic link text ('click here', bare URLs) with descriptive text that tells the reader what they'll find."
+
+  style_governance:
+    label: "Style Governance"
+    criteria:
+
+      - id: C14
+        name: "Consistent capitalisation"
+        description: >
+          Extract all heading text. Check whether the page uses a single consistent
+          style: all Title Case, all Sentence case, or all lowercase. Mixed styles
+          within a page are flagged.
+        method: heading_analysis
+        score_logic: >
+          PASS if heading_style_consistency >= 0.85 (>=85% of headings match dominant style).
+          WARN if 0.65 <= heading_style_consistency < 0.85.
+          FAIL if heading_style_consistency < 0.65.
+        confidence: high
+        suggestion: "Standardise heading capitalisation across the page — pick either Title Case or Sentence case and apply it consistently."
+
+      - id: C15
+        name: "Acronym expansion"
+        description: >
+          All-caps sequences of 2+ characters (e.g. API, CLI, SDK, RBAC) should be
+          expanded in parentheses on first use. Subsequent uses need not be expanded.
+          Common universal acronyms (URL, HTML, CSS, HTTP, HTTPS, JSON, XML, PDF)
+          are exempt.
+        method: acronym_scan
+        exclude_code_blocks: true
+        score_logic: >
+          PASS if unexpanded_acronym_count == 0.
+          WARN if unexpanded_acronym_count == 1 or 2.
+          FAIL if unexpanded_acronym_count >= 3.
+        confidence: high
+        exempt_acronyms:
+          - URL
+          - HTML
+          - CSS
+          - HTTP
+          - HTTPS
+          - JSON
+          - XML
+          - PDF
+          - SQL
+          - API   # debatable — left in exempt list for v1, easy to remove
+          - UI
+          - ID
+          - OK
+          - US
+          - UK
+          - EU
+          - UTC
+          - UTC
+          - AM
+          - PM
+          - FAQ
+        suggestion: "Expand acronyms on first use: write 'Role-Based Access Control (RBAC)' before using RBAC alone."
+
+  search_effectiveness:
+    label: "Search Effectiveness"
+    criteria:
+
+      - id: C20
+        name: "Descriptive page title"
+        description: >
+          The <title> tag should be between 30 and 65 characters and must not consist
+          solely of generic words. Short or vague titles rank poorly and give readers
+          no context in browser tabs or search results.
+        method: html_parse
+        score_logic: >
+          PASS if 30 <= title_length <= 65 and not generic.
+          WARN if title_length < 30 or title_length > 65 (but not generic).
+          FAIL if title is absent, empty, or generic.
+        confidence: high
+        generic_title_patterns:
+          - "^home$"
+          - "^index$"
+          - "^untitled$"
+          - "^page$"
+          - "^documentation$"
+          - "^docs$"
+          - "^welcome$"
+          - "^introduction$"
+        suggestion: "Write a descriptive <title> of 30–65 characters that includes the primary topic keyword."
+
+      - id: C21
+        name: "Heading density"
+        description: >
+          Measures the ratio of headings (H2–H4) to total word count. Too few
+          headings means walls of unbroken text; too many means choppy fragmented
+          content. Target: one heading per 150–400 words.
+        method: ratio_check
+        score_logic: >
+          PASS if 150 <= words_per_heading <= 400.
+          WARN if 100 <= words_per_heading < 150 or 400 < words_per_heading <= 600.
+          FAIL if words_per_heading < 100 or words_per_heading > 600 or heading_count == 0.
+        confidence: high
+        suggestion: "Aim for one H2–H4 heading per 150–400 words. Add headings to break up long sections or merge thin sections."
+
+  seo_compliance:
+    label: "SEO Compliance"
+    criteria:
+
+      - id: C22
+        name: "Meta description present"
+        description: >
+          A <meta name="description"> tag should be present and contain between
+          50 and 160 characters. Absent or empty meta descriptions are missed
+          opportunities for search result snippets.
+        method: html_parse
+        score_logic: >
+          PASS if meta_description present and 50 <= length <= 160.
+          WARN if present but length < 50 or length > 160.
+          FAIL if absent or empty.
+        confidence: high
+        suggestion: "Add a <meta name='description'> tag with a 50–160 character summary of the page's purpose."
+
+      - id: C23
+        name: "Canonical URL"
+        description: >
+          A <link rel="canonical"> tag signals the preferred URL for this page
+          and prevents duplicate content penalties from search engines.
+        method: html_parse
+        score_logic: >
+          PASS if canonical link tag present and href is non-empty.
+          FAIL if absent or href is empty.
+        confidence: high
+        suggestion: "Add <link rel='canonical' href='...'> to the <head> to declare the preferred URL for this page."
+
+  second_person_usage:
+    label: "Second Person Usage"
+    criteria:
+
+      - id: C24
+        name: "No third-person self-reference"
+        description: >
+          Documentation that refers to its own readers as "the user", "the administrator",
+          or "the developer" in instructional sentences is distancing and imprecise.
+          Detect patterns like "the user should", "the administrator must", "the user can".
+        method: regex
+        exclude_code_blocks: true
+        patterns:
+          - "\\bthe\\s+(user|administrator|developer|operator|reader|customer)\\s+(should|must|can|will|needs?\\s+to|is\\s+required\\s+to)\\b"
+          - "\\bthe\\s+(user|administrator|developer|operator|reader|customer)\\s+(needs?|has\\s+to|ought\\s+to)\\b"
+        score_logic: >
+          PASS if third_person_instruction_count == 0.
+          WARN if third_person_instruction_count == 1 or 2.
+          FAIL if third_person_instruction_count >= 3.
+        confidence: high
+        suggestion: "Replace 'the user should configure' with 'you should configure'. Use second person for all instructions."
+
+      - id: C25
+        name: "No passive instructions"
+        description: >
+          Instructional passive constructions ("should be configured", "must be set",
+          "needs to be enabled") remove agency and obscure who performs the action.
+        method: regex
+        exclude_code_blocks: true
+        patterns:
+          - "\\b(should|must|needs?\\s+to|has\\s+to)\\s+be\\s+(\\w+ed|\\w+en)\\b"
+          - "\\b(can|may)\\s+be\\s+(\\w+ed|\\w+en)\\s+by\\b"
+        score_logic: >
+          PASS if passive_instruction_count == 0.
+          WARN if passive_instruction_count == 1 or 2.
+          FAIL if passive_instruction_count >= 3.
+        confidence: high
+        suggestion: "Rewrite passive instructions actively: 'Configure the timeout' not 'The timeout should be configured'."
+
+      - id: C26
+        name: "Direct address consistency"
+        description: >
+          A page that mixes second-person ("you should enable") and third-person
+          ("the user should enable") address styles is inconsistent and confusing.
+          Detect pages that use both patterns and flag the minority style as an error.
+        method: mixed_address_detection
+        exclude_code_blocks: true
+        score_logic: >
+          PASS if address_style is consistently second_person or consistently third_person.
+          WARN if minor_style_count <= 2 (small number of inconsistent instances).
+          FAIL if both styles appear with minor_style_count >= 3.
+        confidence: high
+        suggestion: "Pick one address style and apply it throughout. Prefer second person ('you') for instructional content."
+
+phase_2_criteria:
+  note: >
+    The following criteria require semantic understanding and are deferred to Phase 2,
+    which will use an LLM (Claude API or Ollama) for scoring. They are intentionally
+    excluded from v1 to maintain the zero-API-cost guarantee.
+  criteria:
+    - id: C16
+      name: "Style guide compliance"
+      reason: "Too broad for regex — requires understanding tone, tense, and punctuation conventions holistically."
+    - id: C17
+      name: "Clear user outcome"
+      reason: "Requires semantic understanding of the page's introductory intent."
+    - id: C18
+      name: "Task-oriented headings"
+      reason: "Distinguishing topic headings from task headings requires semantic understanding."
+    - id: C19
+      name: "No orphan content"
+      reason: "Requires understanding section-level narrative flow — not pattern-detectable."

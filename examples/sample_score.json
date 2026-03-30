@@ -1,0 +1,212 @@
+{
+  "meta": {
+    "url": "https://docs.example.com/auth/getting-started",
+    "evaluated": "2024-01-15 09:30 UTC",
+    "word_count": 53,
+    "fetch_duration_ms": 38,
+    "grade": "C",
+    "summary": "9 passed · 4 warnings · 2 failed (out of 15 criteria)",
+    "warnings": []
+  },
+  "scores": [
+    {
+      "id": "C06",
+      "name": "Active voice",
+      "dimension": "Voice & Tone",
+      "score": "PASS",
+      "confidence": "high",
+      "evidence": "0 of 5 sentences contain passive constructions.",
+      "suggestion": "Rewrite passive constructions so the subject acts: 'Configure the setting' not 'The setting should be configured'.",
+      "detail": {
+        "passive_count": 0,
+        "sentence_count": 5,
+        "passive_ratio": 0.0
+      }
+    },
+    {
+      "id": "C07",
+      "name": "Second person",
+      "dimension": "Voice & Tone",
+      "score": "PASS",
+      "confidence": "high",
+      "evidence": "'you/your' appears 2 times; third-person references appear 1 times (67% second-person ratio).",
+      "suggestion": "Replace 'the user should' with 'you should'. Address the reader directly throughout.",
+      "detail": {
+        "you_count": 2,
+        "third_count": 1,
+        "you_ratio": 0.667
+      }
+    },
+    {
+      "id": "C08",
+      "name": "Imperative mood",
+      "dimension": "Voice & Tone",
+      "score": "WARN",
+      "confidence": "high",
+      "evidence": "2 of 4 list items start with an action verb (50%). Non-imperative example: \"OAuth flow reference\"",
+      "suggestion": "Start numbered steps and list items with an action verb: 'Click Save' not 'The Save button should be clicked'.",
+      "detail": {
+        "imperative_count": 2,
+        "list_item_count": 4,
+        "imperative_ratio": 0.5
+      }
+    },
+    {
+      "id": "C09",
+      "name": "Internal cross-links",
+      "dimension": "Discoverability",
+      "score": "PASS",
+      "confidence": "high",
+      "evidence": "3 internal link(s) found. Examples: \"API Keys page\", \"OAuth flow reference\", \"Available scopes\".",
+      "suggestion": "Add at least 3 links to related pages on the same domain to connect this page into the documentation graph.",
+      "detail": {
+        "internal_link_count": 3
+      }
+    },
+    {
+      "id": "C10",
+      "name": "Related Topics section",
+      "dimension": "Discoverability",
+      "score": "PASS",
+      "confidence": "high",
+      "evidence": "Found related-topics heading: \"See also\".",
+      "suggestion": "Add a 'Related topics' or 'See also' section at the bottom of the page with links to adjacent content.",
+      "detail": {}
+    },
+    {
+      "id": "C11",
+      "name": "Task-oriented link text",
+      "dimension": "Discoverability",
+      "score": "PASS",
+      "confidence": "high",
+      "evidence": "All 3 links have descriptive anchor text.",
+      "suggestion": "Replace generic link text ('click here', bare URLs) with descriptive text that tells the reader what they'll find.",
+      "detail": {
+        "bad_link_count": 0,
+        "total_links": 3,
+        "bad_ratio": 0.0
+      }
+    },
+    {
+      "id": "C14",
+      "name": "Consistent capitalisation",
+      "dimension": "Style Governance",
+      "score": "FAIL",
+      "confidence": "high",
+      "evidence": "Dominant style is sentence case (1/3 headings). Inconsistent headings: \"Option 1: API Key Authentication\"; \"See also\".",
+      "suggestion": "Standardise heading capitalisation — pick either Title Case or Sentence case and apply it to all H2–H4 headings.",
+      "detail": {
+        "dominant_style": "sentence",
+        "consistency": 0.333,
+        "heading_count": 3
+      }
+    },
+    {
+      "id": "C15",
+      "name": "Acronym expansion",
+      "dimension": "Style Governance",
+      "score": "WARN",
+      "confidence": "high",
+      "evidence": "1 acronym(s) used without expansion on first use: ADMIN.",
+      "suggestion": "Expand acronyms on first use: write 'Role-Based Access Control (RBAC)' before using RBAC alone.",
+      "detail": {
+        "unexpanded_count": 1,
+        "unexpanded": [
+          "ADMIN"
+        ]
+      }
+    },
+    {
+      "id": "C20",
+      "name": "Descriptive page title",
+      "dimension": "Search Effectiveness",
+      "score": "PASS",
+      "confidence": "high",
+      "evidence": "Title is 35 characters: \"Getting Started with Authentication\".",
+      "suggestion": "Write a descriptive <title> of 30–65 characters that includes the primary topic keyword.",
+      "detail": {
+        "title_length": 35,
+        "core_title": "Getting Started with Authentication"
+      }
+    },
+    {
+      "id": "C21",
+      "name": "Heading density",
+      "dimension": "Search Effectiveness",
+      "score": "FAIL",
+      "confidence": "high",
+      "evidence": "3 H2–H4 heading(s) for 53 words = 18 words per heading. Headings are too dense — sections are very short.",
+      "suggestion": "Aim for one H2–H4 heading per 150–400 words. Add headings to break up long sections or merge thin ones.",
+      "detail": {
+        "heading_count": 3,
+        "word_count": 53,
+        "words_per_heading": 17.7
+      }
+    },
+    {
+      "id": "C22",
+      "name": "Meta description present",
+      "dimension": "SEO Compliance",
+      "score": "PASS",
+      "confidence": "high",
+      "evidence": "Meta description is 55 characters: \"Learn how to authenticate using OAuth 2.0 and API keys.\".",
+      "suggestion": "Add a <meta name='description'> tag with a 50–160 character summary of the page's purpose.",
+      "detail": {
+        "meta_length": 55
+      }
+    },
+    {
+      "id": "C23",
+      "name": "Canonical URL",
+      "dimension": "SEO Compliance",
+      "score": "PASS",
+      "confidence": "high",
+      "evidence": "Canonical URL declared: \"https://docs.example.com/auth/getting-started\".",
+      "suggestion": "Add <link rel='canonical' href='...'> to the <head> to declare the preferred URL for this page.",
+      "detail": {}
+    },
+    {
+      "id": "C24",
+      "name": "No third-person self-reference",
+      "dimension": "Second Person Usage",
+      "score": "WARN",
+      "confidence": "high",
+      "evidence": "1 third-person instruction(s) found. Example: \"The user should\".",
+      "suggestion": "Replace 'the user should configure' with 'you should configure'. Use second person for all instructions.",
+      "detail": {
+        "count": 1,
+        "examples": [
+          "The user should"
+        ]
+      }
+    },
+    {
+      "id": "C25",
+      "name": "No passive instructions",
+      "dimension": "Second Person Usage",
+      "score": "PASS",
+      "confidence": "high",
+      "evidence": "No passive instructional constructions found.",
+      "suggestion": "Rewrite passive instructions actively: 'Configure the timeout' not 'The timeout should be configured'.",
+      "detail": {
+        "count": 0,
+        "examples": []
+      }
+    },
+    {
+      "id": "C26",
+      "name": "Direct address consistency",
+      "dimension": "Second Person Usage",
+      "score": "WARN",
+      "confidence": "high",
+      "evidence": "Mostly second person style, but 1 instance(s) of the other style found (you/your: 2, third-person refs: 1).",
+      "suggestion": "Pick one address style and apply it throughout. Prefer second person ('you') for instructional content.",
+      "detail": {
+        "you_count": 2,
+        "third_count": 1,
+        "dominant_style": "second person",
+        "minor_count": 1
+      }
+    }
+  ]
+}
