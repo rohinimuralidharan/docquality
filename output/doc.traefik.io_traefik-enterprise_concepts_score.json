@@ -1,0 +1,212 @@
+{
+  "meta": {
+    "url": "https://doc.traefik.io/traefik-enterprise/concepts/",
+    "evaluated": "2026-03-30 18:44 UTC",
+    "word_count": 1039,
+    "fetch_duration_ms": 323,
+    "grade": "D",
+    "summary": "9 passed · 2 warnings · 4 failed (out of 15 criteria)",
+    "warnings": []
+  },
+  "scores": [
+    {
+      "id": "C06",
+      "name": "Active voice",
+      "dimension": "Voice & Tone",
+      "score": "PASS",
+      "confidence": "high",
+      "evidence": "8 of 61 sentences contain passive constructions (13%). Example: \"Traefik Enterprise's service mesh is based on the Kubernetes concept of a DaemonSet , which ensures that a service mesh \"",
+      "suggestion": "Rewrite passive constructions so the subject acts: 'Configure the setting' not 'The setting should be configured'.",
+      "detail": {
+        "passive_count": 8,
+        "sentence_count": 61,
+        "passive_ratio": 0.131
+      }
+    },
+    {
+      "id": "C07",
+      "name": "Second person",
+      "dimension": "Voice & Tone",
+      "score": "PASS",
+      "confidence": "high",
+      "evidence": "'you/your' appears 21 times; third-person references appear 0 times (100% second-person ratio).",
+      "suggestion": "Replace 'the user should' with 'you should'. Address the reader directly throughout.",
+      "detail": {
+        "you_count": 21,
+        "third_count": 0,
+        "you_ratio": 1.0
+      }
+    },
+    {
+      "id": "C08",
+      "name": "Imperative mood",
+      "dimension": "Voice & Tone",
+      "score": "FAIL",
+      "confidence": "high",
+      "evidence": "2 of 105 list items start with an action verb (2%). Non-imperative example: \"Getting Started\"",
+      "suggestion": "Start numbered steps and list items with an action verb: 'Click Save' not 'The Save button should be clicked'.",
+      "detail": {
+        "imperative_count": 2,
+        "list_item_count": 105,
+        "imperative_ratio": 0.019
+      }
+    },
+    {
+      "id": "C09",
+      "name": "Internal cross-links",
+      "dimension": "Discoverability",
+      "score": "PASS",
+      "confidence": "high",
+      "evidence": "12 internal link(s) found. Examples: \"introduction\", \"dynamic configuration\", \"circuit breaker pattern\".",
+      "suggestion": "Add at least 3 links to related pages on the same domain to connect this page into the documentation graph.",
+      "detail": {
+        "internal_link_count": 12
+      }
+    },
+    {
+      "id": "C10",
+      "name": "Related Topics section",
+      "dimension": "Discoverability",
+      "score": "FAIL",
+      "confidence": "high",
+      "evidence": "No related-topics heading found. Page headings: ['Concepts', 'Architecture Overview', 'Cluster and Nodes', 'Nodes in the Data Plane', 'Nodes in the Control Plane', 'Service Mesh', 'High Availability', 'HA in the Data Plane', 'HA in the Control Plane', 'Common Questions', 'How Many Nodes Do You Need in the Control Plane?', 'What Happens if the Control Plane is Unhealthy?', 'Scalability', 'Security'].",
+      "suggestion": "Add a 'Related topics' or 'See also' section at the bottom of the page with links to adjacent content.",
+      "detail": {}
+    },
+    {
+      "id": "C11",
+      "name": "Task-oriented link text",
+      "dimension": "Discoverability",
+      "score": "PASS",
+      "confidence": "high",
+      "evidence": "All 19 links have descriptive anchor text.",
+      "suggestion": "Replace generic link text ('click here', bare URLs) with descriptive text that tells the reader what they'll find.",
+      "detail": {
+        "bad_link_count": 0,
+        "total_links": 19,
+        "bad_ratio": 0.0
+      }
+    },
+    {
+      "id": "C14",
+      "name": "Consistent capitalisation",
+      "dimension": "Style Governance",
+      "score": "PASS",
+      "confidence": "high",
+      "evidence": "Dominant style is title case (12/13 headings). Inconsistent headings: \"What Happens if the Control Plane is Unhealthy?\".",
+      "suggestion": "Standardise heading capitalisation — pick either Title Case or Sentence case and apply it to all H2–H4 headings.",
+      "detail": {
+        "dominant_style": "title",
+        "consistency": 0.923,
+        "heading_count": 13
+      }
+    },
+    {
+      "id": "C15",
+      "name": "Acronym expansion",
+      "dimension": "Style Governance",
+      "score": "WARN",
+      "confidence": "high",
+      "evidence": "1 acronym(s) used without expansion on first use: HA.",
+      "suggestion": "Expand acronyms on first use: write 'Role-Based Access Control (RBAC)' before using RBAC alone.",
+      "detail": {
+        "unexpanded_count": 1,
+        "unexpanded": [
+          "HA"
+        ]
+      }
+    },
+    {
+      "id": "C20",
+      "name": "Descriptive page title",
+      "dimension": "Search Effectiveness",
+      "score": "PASS",
+      "confidence": "high",
+      "evidence": "Title is 61 characters: \"Traefik Enterprise Architecture Concepts - Traefik Enterprise\".",
+      "suggestion": "Write a descriptive <title> of 30–65 characters that includes the primary topic keyword.",
+      "detail": {
+        "title_length": 61,
+        "core_title": "Traefik Enterprise Architecture Concepts - Traefik Enterprise"
+      }
+    },
+    {
+      "id": "C21",
+      "name": "Heading density",
+      "dimension": "Search Effectiveness",
+      "score": "FAIL",
+      "confidence": "high",
+      "evidence": "13 H2–H4 heading(s) for 1039 words = 80 words per heading. Headings are too dense — sections are very short.",
+      "suggestion": "Aim for one H2–H4 heading per 150–400 words. Add headings to break up long sections or merge thin ones.",
+      "detail": {
+        "heading_count": 13,
+        "word_count": 1039,
+        "words_per_heading": 79.9
+      }
+    },
+    {
+      "id": "C22",
+      "name": "Meta description present",
+      "dimension": "SEO Compliance",
+      "score": "PASS",
+      "confidence": "high",
+      "evidence": "Meta description is 156 characters: \"Traefik Enterprise's architecture consists of nodes spread into two different pl...\".",
+      "suggestion": "Add a <meta name='description'> tag with a 50–160 character summary of the page's purpose.",
+      "detail": {
+        "meta_length": 156
+      }
+    },
+    {
+      "id": "C23",
+      "name": "Canonical URL",
+      "dimension": "SEO Compliance",
+      "score": "FAIL",
+      "confidence": "high",
+      "evidence": "No <link rel='canonical'> tag found in <head>.",
+      "suggestion": "Add <link rel='canonical' href='...'> to the <head> to declare the preferred URL for this page.",
+      "detail": {}
+    },
+    {
+      "id": "C24",
+      "name": "No third-person self-reference",
+      "dimension": "Second Person Usage",
+      "score": "PASS",
+      "confidence": "high",
+      "evidence": "No third-person self-references found in instructional text.",
+      "suggestion": "Replace 'the user should configure' with 'you should configure'. Use second person for all instructions.",
+      "detail": {
+        "count": 0,
+        "examples": []
+      }
+    },
+    {
+      "id": "C25",
+      "name": "No passive instructions",
+      "dimension": "Second Person Usage",
+      "score": "WARN",
+      "confidence": "high",
+      "evidence": "1 passive instruction(s) found. Example: \"must be recovered\".",
+      "suggestion": "Rewrite passive instructions actively: 'Configure the timeout' not 'The timeout should be configured'.",
+      "detail": {
+        "count": 1,
+        "examples": [
+          "must be recovered"
+        ]
+      }
+    },
+    {
+      "id": "C26",
+      "name": "Direct address consistency",
+      "dimension": "Second Person Usage",
+      "score": "PASS",
+      "confidence": "high",
+      "evidence": "Consistent second person address style throughout (you/your: 20, third-person refs: 0).",
+      "suggestion": "Pick one address style and apply it throughout. Prefer second person ('you') for instructional content.",
+      "detail": {
+        "you_count": 20,
+        "third_count": 0,
+        "dominant_style": "second person",
+        "minor_count": 0
+      }
+    }
+  ]
+}

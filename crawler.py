@@ -44,8 +44,10 @@ USER_AGENT = (
 # Selectors tried in order to find the main content block.
 # First selector that yields >= MIN_WORD_COUNT words wins.
 MAIN_CONTENT_SELECTORS = [
-    # MkDocs Material
+    # MkDocs Material — article body only, not the full md-content wrapper
+    # which includes the sidebar table of contents
     "article.md-content__inner",
+    "div.md-content__inner",
     "div.md-content",
     # Docusaurus
     "article.theme-doc-markdown",
@@ -68,6 +70,27 @@ MAIN_CONTENT_SELECTORS = [
     ".main-content",
     ".documentation",
     ".docs-content",
+]
+
+# After selecting the main content block, strip these selectors from within it.
+# Material for MkDocs places in-page nav and other chrome inside the article.
+CONTENT_INNER_STRIP_SELECTORS = [
+    # Material for MkDocs — in-page table of contents nav
+    "nav.md-nav",
+    "nav.md-nav--secondary",
+    ".md-nav",
+    # Material for MkDocs — edit/source links, tags, feedback
+    ".md-content__button",
+    ".md-source-file",
+    ".md-tags",
+    # Docusaurus — pagination links at bottom
+    ".pagination-nav",
+    ".theme-doc-footer",
+    # General — any remaining nav elements inside content
+    "nav",
+    # Lists that are purely navigation (aria-label signals)
+    "[aria-label='Table of contents']",
+    "[aria-label='breadcrumb']",
 ]
 
 # Tags whose entire subtree should be removed before text extraction.
@@ -169,6 +192,7 @@ class CrawlResult:
     code_blocks: list = field(default_factory=list)
     word_count: int = 0
     raw_html: str = ""
+    cleaned_html: str = ""   # serialised content block after all chrome stripping
     warnings: list = field(default_factory=list)
     fetch_duration_ms: int = 0
 
@@ -237,6 +261,21 @@ def _find_main_content(soup: BeautifulSoup) -> BeautifulSoup:
 
     # Last resort: return whatever is left in body
     return soup.find("body") or soup
+
+
+def _strip_content_chrome(content: BeautifulSoup) -> None:
+    """
+    Second-pass chrome removal inside the selected content block.
+
+    Some platforms (Material for MkDocs, Docusaurus) embed navigation,
+    table-of-contents, and feedback widgets *inside* the main article element.
+    These survive the first _strip_chrome pass because they're inside the
+    content selector match. This pass removes them from the content block
+    before text extraction and list-item analysis.
+    """
+    for selector in CONTENT_INNER_STRIP_SELECTORS:
+        for el in content.select(selector):
+            el.decompose()
 
 
 def _extract_headings(content: BeautifulSoup) -> list[Heading]:
@@ -338,12 +377,19 @@ def crawl(url: str) -> CrawlResult:
     # --- Find main content block ---
     content = _find_main_content(soup)
 
+    # --- Second-pass: strip nav/chrome embedded inside the content block ---
+    # (Material for MkDocs, Docusaurus embed in-page TOC nav inside the article)
+    _strip_content_chrome(content)
+
     # --- Extract headings and links before code removal ---
     headings = _extract_headings(content)
     links = _extract_links(content, domain, final_url)
 
     # --- Remove code blocks (mutates content) ---
     code_blocks = _extract_code_blocks(content)
+
+    # --- Serialise cleaned content for use by scorer (e.g. C08 list items) ---
+    cleaned_html = str(content)
 
     # --- Extract clean prose text ---
     body_text = _clean_body_text(content)
@@ -369,6 +415,7 @@ def crawl(url: str) -> CrawlResult:
         code_blocks=code_blocks,
         word_count=word_count,
         raw_html=html,
+        cleaned_html=cleaned_html,
         warnings=warnings,
         fetch_duration_ms=fetch_ms,
     )

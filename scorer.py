@@ -231,12 +231,10 @@ def _score_c07(result: CrawlResult) -> ScoreResult:
 def _score_c08(result: CrawlResult) -> ScoreResult:
     from bs4 import BeautifulSoup
 
-    # Re-parse raw HTML to get list items (body_text loses structure)
-    soup = BeautifulSoup(result.raw_html, "lxml")
-
-    # Remove code blocks first
-    for el in soup.find_all(["pre", "code", "kbd"]):
-        el.decompose()
+    # Use the already-cleaned content HTML (chrome stripped, code blocks removed)
+    # NOT raw_html — that would re-introduce sidebar nav and other chrome
+    html_to_parse = result.cleaned_html or result.raw_html
+    soup = BeautifulSoup(html_to_parse, "lxml")
 
     list_items = []
     for tag in soup.find_all(["li"]):
@@ -417,28 +415,67 @@ def _score_c11(result: CrawlResult) -> ScoreResult:
 # C14 — Consistent capitalisation
 # ---------------------------------------------------------------------------
 
+# Words that are correctly lowercase in Title Case
+# (articles, prepositions, conjunctions under 5 letters)
+_TITLE_CASE_LOWERCASE = {
+    "a", "an", "the",           # articles
+    "and", "but", "or", "nor",  # coordinating conjunctions
+    "for", "so", "yet",
+    "at", "by", "in", "of",     # prepositions
+    "on", "to", "up", "as",
+    "vs", "via",
+}
+
+
 def _classify_heading_case(text: str) -> str:
     """
     Return 'title', 'sentence', or 'other' for a heading string.
-    Title case: most words capitalised.
-    Sentence case: only first word (and proper nouns) capitalised.
+
+    Title case: first word capitalised + subsequent significant words capitalised.
+                Short words (articles, prepositions, conjunctions) may be lowercase.
+    Sentence case: only first word capitalised (plus proper nouns).
     """
     words = text.split()
     if not words:
         return "other"
 
-    # Strip punctuation for analysis
-    clean_words = [re.sub(r'[^a-zA-Z]', '', w) for w in words]
-    alpha_words = [w for w in clean_words if w]
+    clean_words = [re.sub(r"[^a-zA-Z]", "", w) for w in words]
+    alpha_words = [(i, w) for i, w in enumerate(clean_words) if w]
     if not alpha_words:
         return "other"
 
-    cap_count = sum(1 for w in alpha_words if w and w[0].isupper())
-    cap_ratio = cap_count / len(alpha_words)
+    # Classify each word as "should be capitalised" or "may be lowercase"
+    cap_required = []   # words that must be capitalised in both styles
+    for i, w in alpha_words:
+        is_first = (i == 0)
+        is_short_word = w.lower() in _TITLE_CASE_LOWERCASE
+        if is_first or not is_short_word:
+            cap_required.append(w)
 
-    if cap_ratio >= 0.70:
+    if not cap_required:
+        return "other"
+
+    # Title case: all required words are capitalised
+    title_caps = sum(1 for w in cap_required if w and w[0].isupper())
+    title_ratio = title_caps / len(cap_required)
+
+    # Sentence case: only the first word is capitalised
+    first_word = alpha_words[0][1]
+    non_first_caps = sum(
+        1 for i, w in alpha_words[1:]
+        if w and w[0].isupper() and w.lower() not in _TITLE_CASE_LOWERCASE
+    )
+    non_first_significant = sum(
+        1 for i, w in alpha_words[1:]
+        if w and w.lower() not in _TITLE_CASE_LOWERCASE
+    )
+
+    if title_ratio >= 0.85:
         return "title"
-    elif alpha_words[0][0].isupper() and cap_ratio <= 0.35:
+    elif first_word[0].isupper() and (
+        non_first_significant == 0 or
+        (non_first_caps / non_first_significant) <= 0.20
+    ):
         return "sentence"
     else:
         return "other"
